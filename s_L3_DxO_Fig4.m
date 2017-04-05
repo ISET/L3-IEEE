@@ -11,10 +11,6 @@
 % Init ISET session
 ieInit;
 
-% Init remote data toolbox parameters
-rd = RdtClient('scien');
-rd.crp('/L3/Cardinal/D600');
-
 % Init camera parameters
 cfa = [2 1; 3 4];  % Bayer pattern, 2 and 4 are both for green
 patch_sz = [5 5];
@@ -23,10 +19,11 @@ pad_sz   = (patch_sz - 1) / 2;
 %% Load a pair of raw and rendered file
 %  load rgb file
 raw_name = 'ma_griz_39558';
-tif_name = [lower(raw_name) '_dxo_nodist'];
+tif_name = [lower(raw_name) '_dxo_nodist.tif'];
 
 % load image
-tif = im2double(rd.readArtifact(tif_name, 'type', 'tif'));
+% tif = im2double(rd.readArtifact(tif_name, 'type', 'tif'));
+tif = im2double(imread(tif_name));
 if isodd(size(tif, 1)), tif = tif(1:end-1, :, :); end
 if isodd(size(tif, 2)), tif = tif(:, 1:end-1, :); end
 
@@ -40,7 +37,8 @@ else % horizontal
 end
 
 % load raw image
-raw = im2double(rd.readArtifact(raw_name, 'type', 'pgm'));
+% raw = im2double(rd.readArtifact(raw_name, 'type', 'pgm'));
+raw = im2double(imread([raw_name '.pgm']));
 raw = rawAdjustSize(raw, sz, pad_sz, offset);
 
 %% Learn l3 kernels
@@ -54,7 +52,7 @@ l3t.l3c.cutPoints = {logspace(-3.5, -1.6, 40)};
 % learn linear filters
 l3t.train(l3DataCamera({raw}, {tif}, cfa));
 
-%% Render the training image
+%% Render the image
 % Render
 l3r = l3Render();
 l3_RGB = ieClip(l3r.render(raw, cfa, l3t), 0, 1);

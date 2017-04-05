@@ -10,21 +10,16 @@ cfa = [2 1; 3 4];
 patch_sz = [5 5];
 pad_sz = (patch_sz - 1) / 2;
 
-%% Load Data from remote server
-%  init remote data toolbox client
-rd = RdtClient('scien');
-rd.crp('/L3/Farrell/D200/garden');
-s = rd.searchArtifacts('dsc_', 'type', 'pgm');
-
-% Load data
-trainFile = 'dsc_0785';   % Flower image
-raw = im2double(rd.readArtifact(trainFile, 'type', 'pgm'));
-rgb = im2double(rd.readArtifact(trainFile, 'type', 'jpg'));
+%% Load Data
+% Load one image for training
+trainFile = 'dsc_0768';
+raw = im2double(imread([trainFile '.pgm']));
+rgb = im2double(imread([trainFile '.jpg']));
 
 % load another image for testing
-testFile = 'dsc_0784';
-raw_test = im2double(rd.readArtifact(testFile, 'type', 'pgm'));
-rgb_test = im2double(rd.readArtifact(testFile, 'type', 'jpg'));
+testFile = 'dsc_0802';
+raw_test = im2double(imread([testFile '.pgm']));
+rgb_test = im2double(imread([testFile '.jpg']));
 rgb_test = rgb_test(pad_sz(1)+1:end-pad_sz(1),pad_sz(2)+1:end-pad_sz(2),:);
 
 %% Measure performanace for different luminance levels

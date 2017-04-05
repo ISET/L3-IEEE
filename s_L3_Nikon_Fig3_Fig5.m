@@ -16,15 +16,8 @@ patch_sz = [5 5];
 pad_sz = (patch_sz - 1) / 2;
 illuminant_correct = true;
 
-% there are two groups of images (cfa alignment is different) on the
-% server. we pick out one group from them
-indx = [2 4 5 7:10 12:14 21:29 33:35];
-
-% init remote data toolbox client
-rd = RdtClient('scien');
-rd.crp('/L3/Farrell/D200/garden');
-s = rd.searchArtifacts('dsc_', 'type', 'pgm');
-s = s(indx);
+% list all data files
+s = dir('../Data/Nikon/*.pgm');
 
 % init parameters for SCIELAB
 d = displayCreate('LCD-Apple');
@@ -48,9 +41,9 @@ l3t.l3c.cutPoints = {logspace(-3.5, -1.6, 40)};
 
 for ii = 1 : 2 : length(s)
     % load data
-    img_name = s(ii).artifactId;
-    raw = im2double(rd.readArtifact(img_name, 'type', 'pgm'));
-    rgb = im2double(rd.readArtifact(img_name, 'type', 'jpg'));
+    img_name = s(ii).name(1:end-4);  % remove extension
+    raw = im2double(imread([img_name '.pgm']));
+    rgb = im2double(imread([img_name '.jpg']));
     
     % classify
     l3t.l3c.classify(l3DataCamera({raw}, {rgb}, cfa));
@@ -67,9 +60,9 @@ de = zeros(length(s), 1);
 
 for ii = 1 : length(s)
     % load data
-    img_name = s(ii).artifactId;
-    raw = im2double(rd.readArtifact(img_name, 'type', 'pgm'));
-    rgb = im2double(rd.readArtifact(img_name, 'type', 'jpg'));
+    img_name = s(ii).name(1:end-4);
+    raw = im2double(imread([img_name '.pgm']));
+    rgb = im2double(imread([img_name '.jpg']));
     rgb = rgb(pad_sz(1)+1:end-pad_sz(1), pad_sz(2)+1:end-pad_sz(2), :);
     
     % render the image with L3
@@ -85,6 +78,9 @@ for ii = 1 : length(s)
     % compute PSNR
     psnr_val(ii) = psnr(l3_RGB, rgb);
     
+    % save to file
+    imwrite(l3_RGB, ['../Data/Nikon/L3Rendered/' img_name '.tif']);
+    
     % compute S-CIELAB DeltaE
     xyz1 = imageLinearTransform(l3_RGB, rgb2xyz);
     xyz2 = imageLinearTransform(rgb, rgb2xyz);
@@ -99,8 +95,8 @@ fprintf('Mean S-CIELAB DeltaE: %.2f\n', mean(de));
 %% Show example images
 %  load test image
 img_name = 'dsc_0768';
-raw = im2double(rd.readArtifact(img_name, 'type', 'pgm'));
-rgb = im2double(rd.readArtifact(img_name, 'type', 'jpg'));
+raw = im2double(imread([img_name, '.pgm']));
+rgb = im2double(imread([img_name, '.jpg']));
 rgb = rgb(pad_sz(1)+1:end-pad_sz(1), pad_sz(2)+1:end-pad_sz(2), :);
 
 %  render

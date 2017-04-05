@@ -23,7 +23,12 @@ camera = cameraSet(camera, 'sensor filter spectra', fspec);
 
 %% create l3 data structure
 l3d = l3DataSimulation('camera', camera, 'expFrac', expFrac);
-l3d.loadSources(nTrain+1, 'oi');
+s = dir('../Data/CISET/*.mat');
+for ii = 1 : nTrain+1
+    data = load(s(ii).name);
+    l3d.sources = cat(1, l3d.sources, data.oi);
+end
+
 for ii = 1 : nTrain+1
     l3d.sources{ii} = oiSet(l3d.sources{ii}, 'optics f length', 0.004);
     l3d.sources{ii} = oiSet(l3d.sources{ii}, 'optics f number', 4);

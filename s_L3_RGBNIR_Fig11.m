@@ -18,10 +18,8 @@ expFrac = 0.1:0.1:1;
 wave = 420:10:950;
 pixelSz = 2.75e-6;
 
-% init remote data toolbox
-rdt = RdtClient('isetbio');
-rdt.crp('/resources/scenes/hyperspectral/stanford_database');
-s = rdt.listArtifacts;
+% list all RGB-NIR images
+s = dir('../Data/NIR/*.mat');
 
 %% Create L3 data structure
 % load rgb-ir camera model
@@ -39,12 +37,10 @@ camera = cameraSet(camera, 'pixel size constant fill factor', pixelSz);
 
 % load rgb-ir scenes
 scenes = cell(nTrain+1, 1);
-indx = 1;
 for ii = 1 : nTrain + 1
-    while ~strcmp(s(indx).type, 'mat'), indx = indx + 1; end
-    scenes{ii} = sceneFromBasis(rdt.readArtifact(s(indx).artifactId));
+    sceneS = load(s(ii).name);
+    scenes{ii} = sceneFromBasis(sceneS);
     scenes{ii} = sceneSet(scenes{ii}, 'wave', wave);
-    indx = indx + 1;
 end
 
 % create l3 data structure

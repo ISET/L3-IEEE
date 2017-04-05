@@ -19,10 +19,7 @@ patch_sz_list = [5 7 9];
 indx = [2 4 5 7:10 12:14 21:29 33:35];
 
 % init remote data toolbox client
-rd = RdtClient('scien');
-rd.crp('/L3/Farrell/D200/garden');
-s = rd.searchArtifacts('dsc_', 'type', 'pgm');
-s = s(indx);
+s = dir('../Data/Nikon/*.pgm');
 
 % init parameters for SCIELAB
 d = displayCreate('LCD-Apple');
@@ -54,9 +51,9 @@ for kk = 1 : length(patch_sz_list)
     
     for ii = 1 : 2 : length(s)
         % load data
-        img_name = s(ii).artifactId;
-        raw = im2double(rd.readArtifact(img_name, 'type', 'pgm'));
-        rgb = im2double(rd.readArtifact(img_name, 'type', 'jpg'));
+        img_name = s(ii).name(1:end-4);
+        raw = im2double(imread([img_name '.pgm']));
+        rgb = im2double(imread([img_name '.jpg']));
         
         % classify
         l3t.l3c.classify(l3DataCamera({raw}, {rgb}, cfa));
@@ -72,9 +69,9 @@ for kk = 1 : length(patch_sz_list)
     l3r = l3Render();
     for ii = 1 : length(s)
         % load data
-        img_name = s(ii).artifactId;
-        raw = im2double(rd.readArtifact(img_name, 'type', 'pgm'));
-        rgb = im2double(rd.readArtifact(img_name, 'type', 'jpg'));
+        img_name = s(ii).name(1:end-4);
+        raw = im2double(imread([img_name '.pgm']));
+        rgb = im2double(imread([img_name '.jpg']));
         rgb = rgb(pad_sz(1)+1:end-pad_sz(1), pad_sz(2)+1:end-pad_sz(2), :);
         
         % render the image with L3
